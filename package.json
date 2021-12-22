@@ -1,0 +1,11 @@
+{
+  "name": "fso-phonebook-backend",
+  "version": "0.0.1",
+  "description": "Server for FSO phonebook application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sam Jones",
+  "license": "ISC"
+}
