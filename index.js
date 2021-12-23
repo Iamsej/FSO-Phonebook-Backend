@@ -7,7 +7,7 @@ morgan.token('postObject', function(req, res) {
     if (req.method === 'POST') {
         return JSON.stringify(req.body)
     } else {
-        return null
+        return ''
     }
 })
 
