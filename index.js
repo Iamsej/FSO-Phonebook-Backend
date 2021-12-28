@@ -1,7 +1,7 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-
+const Person = require('./models/person')
 const app = express()
 
 morgan.token('postObject', function(req, res) {
@@ -47,23 +47,20 @@ app.get('/', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-    response.send(`<p> Phonebook currently has ${persons.length} people in it </p> <p>${new Date()}</p>`)
+    response.send(`<p> Phonebook currently has ${Person.count({})} people in it </p> <p>${new Date()}</p>`)
 })
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(person => {
+        response.json(person)
+    })    
+    
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = persons.find(person => person.id === id)
-    
-    if (person) {
+    Person.findById(request.params.id).then(person => {
         response.json(person)
-    } else {
-        response.statusMessage = 'Person not found'
-        response.status(404).end()
-    }
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -92,14 +89,13 @@ app.post('/api/persons', (request, response) => {
         return response.status(400).json({
             error: 'content missing'
         })
-    } else if (persons.find(person => person.name === body.name)) {
+    } else if (Person.find({name: })) {
         return response.status(400).json({
             error: 'name must be unique'
         })
     }
 
     const person = {
-        id: randInt(),
         name: body.name,
         number: body.number
     }
