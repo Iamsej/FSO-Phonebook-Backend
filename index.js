@@ -104,7 +104,7 @@ app.put('/api/persons/:id', (request, response, next) => {
         .exec()
         .then(updatedPerson => {
             if (!updatedPerson) {
-                response.statusMessage = `${person.name} not found`
+                response.statusMessage = `name not found`
                 response.status(404).end()
             } else {
                 response.status(202).json(updatedPerson)
