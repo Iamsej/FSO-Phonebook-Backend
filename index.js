@@ -66,13 +66,8 @@ app.get('/api/persons/:id', (request, response, next) => {
 app.delete('/api/persons/:id', (request, response, next) => {
     docId = request.params.id
     Person.findByIdAndDelete(docId).then((result)=> {
-        if (!result) {
-            response.statusMessage = 'Person not found'
-            response.status(404).end()
-        } else {
-            response.statusMessage = 'Data successfully deleted'
-            response.status(202).end()
-        }
+        response.statusMessage = 'Data successfully deleted'
+        response.status(202).end()
     })
     .catch(error => next(error))
 })
@@ -83,12 +78,6 @@ app.post('/api/persons', (request, response, next) => {
         name: body.name,
         number: body.number
     })
-    
-    /*if (!body.name || !body.number) {
-        return response.status(400).json({
-            error: 'content missing'
-        })
-    }*/
     
     console.log(person.name)
     Person.exists( { name: `${person.name}`}).then((answer) => {
@@ -114,7 +103,12 @@ app.put('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndUpdate(request.params.id, {number: body.number}, {runValidators: true, context: 'query', new:true})
         .exec()
         .then(updatedPerson => {
-            response.status(202).json(updatedPerson)
+            if (!updatedPerson) {
+                response.statusMessage = `${person.name} not found`
+                response.status(404).end()
+            } else {
+                response.status(202).json(updatedPerson)
+            }
         })
         .catch(error => next(error)) 
 })
