@@ -66,8 +66,13 @@ app.get('/api/persons/:id', (request, response, next) => {
 app.delete('/api/persons/:id', (request, response, next) => {
     docId = request.params.id
     Person.findByIdAndDelete(docId).then((result)=> {
-        response.statusMessage = 'Data successfully deleted'
-        response.status(202).end()
+        if (result) {
+            response.statusMessage = 'data successfully deleted'
+            response.status(202).end()
+        } else {
+            response.statusMessage = 'person not found'
+            response.status(404).end()
+        }
     })
     .catch(error => next(error))
 })
