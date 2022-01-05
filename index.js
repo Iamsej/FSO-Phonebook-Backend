@@ -2,14 +2,12 @@ require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-const res = require('express/lib/response')
-const mongoose = require('mongoose')
 const Person = require('./models/person')
 const app = express()
 
-morgan.token('postObject', function(req, res) {
-    if (req.method === 'POST') {
-        return JSON.stringify(req.body)
+morgan.token('postObject', function(request) {
+    if (request.method === 'POST') {
+        return JSON.stringify(request.body)
     } else {
         return ''
     }
@@ -21,7 +19,7 @@ const errorHandler = (error, request, response, next) => {
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
     } else if (error.name === 'ValidationError') {
-        return response.status(400).json({ error: error.message})
+        return response.status(400).json({ error: error.message })
     }
 
     next(error)
@@ -41,13 +39,13 @@ app.get('/info', (request, response) => {
         .then(docCount => {
             response.send(`<p> Phonebook currently has 
             ${docCount} 
-            people in it </p> <p>${new Date()}</p>`)})   
+            people in it </p> <p>${new Date()}</p>`)})
 })
 
 app.get('/api/persons', (request, response) => {
     Person.find({}).then(person => {
         response.json(person)
-    })    
+    })
     
 })
 
@@ -58,14 +56,14 @@ app.get('/api/persons/:id', (request, response, next) => {
             response.json(person)
         } else {
             response.status(404).end()
-        }  
+        }
     })
     .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
-    docId = request.params.id
-    Person.findByIdAndDelete(docId).then((result)=> {
+    const docId = request.params.id
+    Person.findByIdAndDelete(docId).then((result) => {
         if (result) {
             response.statusMessage = 'data successfully deleted'
             response.status(202).end()
@@ -85,7 +83,7 @@ app.post('/api/persons', (request, response, next) => {
     })
     
     console.log(person.name)
-    Person.exists( { name: `${person.name}`}).then((answer) => {
+    Person.exists( { name: `${person.name}` }).then(() => {
         
             person.save().then(result => {
                 console.log(`added ${person.name} ${person.number} to phonebook`)
@@ -94,28 +92,23 @@ app.post('/api/persons', (request, response, next) => {
                 .catch(error => next(error))
               
     })
-    .catch(error => next(error))   
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-    docId = request.params.id
     const body = request.body
-    const person = {
-        name: body.name,
-        number: body.number
-    }
 
-    Person.findByIdAndUpdate(request.params.id, {number: body.number}, {runValidators: true, context: 'query', new:true})
+    Person.findByIdAndUpdate(request.params.id, { number: body.number }, { runValidators: true, context: 'query', new:true })
         .exec()
         .then(updatedPerson => {
             if (!updatedPerson) {
-                response.statusMessage = `name not found`
+                response.statusMessage = 'name not found'
                 response.status(404).end()
             } else {
                 response.status(202).json(updatedPerson)
             }
         })
-        .catch(error => next(error)) 
+        .catch(error => next(error))
 })
 
 const unknownEndpoint = (request, response) => {
